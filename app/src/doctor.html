@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Share-Care</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+    .panel-heading{
+        margin-top: 10px;
+        margin-left: 15px;
+        margin-right: 5px;
+        margin-bottom: 20px;
+    }
+    body {
+        background-color: rgb(122, 236, 236);
+        box-shadow: inset;
+    }
+    .row1 
+    {
+            clear: both;
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    .navbar{
+        margin-top: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-bottom: 70px;
+    }
+    </style>
+    <!--<script src="/js/web3.min.js"></script>-->
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse" role="navigation">
+                <div class="container-fluid" style= "margin-left:650px">
+                    
+                    <h1 style=" color: white; border-width: 20cm;">Share-Care</h1>
+                    <!--<div class="navbar-header">
+                        <h1 style=" color: white; border-width: 20cm;">Share-Care</h1>
+                    </div>-->
+
+                </div>
+            </nav>
+
+    
+    <div class="container"> 
+        <div class="panel panel-default" style=background-color:antiquewhite>
+
+            <div class="panel-heading" style=background-color:white>
+
+            <h1 class="text-center" style="font-style: italic; background-color: white;">Your Information</h1>
+
+            </div>
+            <!--<div class="panel-heading" style=background-color:white>
+                <h3 class="text-center">Personal Information</h3>
+            </div>-->
+            
+            <div class="panel-body">
+                
+
+                  
+                    <div class="col-sm-offset-1 col-md-10">
+                        <table class="table" style=background-color:cyan>
+                            <tr>
+                                <th>Name:</th>
+                                <td id="name"></td>
+                            </tr>
+                            <tr>
+                                <th>Age:</th>
+                                <td id="age"></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    
+            </div>
+        </div>
+
+
+        
+        <div class="panel" style="background-color:antiquewhite;">
+
+            <!--Heading-->
+            <h3 class="text-center" style="background-color: blanchedalmond; font-style: italic;">Patient Details</h3>
+            <!--<div class="panel-heading" style=background-color:white>
+                <h3 class="text-center" style="background-color: blanchedalmond;">Patient Details</h3>
+            </div>-->
+            <div class="panel-body">
+                <div class="row">
+                    <div class="alert alert-danger col-sm-8 col-sm-offset-2" style=background-color:pink>
+                        Access revoked.
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-offset-1 col-sm-10">
+                        <table id="viewPatient" class="table table-hover" style=background-color:white>
+                            <tr>
+                                <th>Patient</th>
+                                <th class="publicKeyPatient">Public Key</th>
+                                <th>Action</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <div class="text-center">
+            <button class="btn btn-primary btn-lg"><a href="./index.html"><h5 style="color: aliceblue;">Logout</h5></a></button>
+        </div> 
+    </div>
+
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/app.js"></script>
+<script src="/js/web3.min.js"></script>
+<script src="https://unpkg.com/ipfs-api/dist/index.min.js" crossorigin="anonymous"></script>
+<script>
+    var ipfs = window.IpfsApi('localhost', '5001')
+
+    const Buffer = window.IpfsApi().Buffer;
+
+    /*var ailmentsDict = {};
+    ailmentsDict[0] = "Common Flu";
+    ailmentsDict[1] = "Viral Infection";
+    ailmentsDict[2] = "Cancer";
+    ailmentsDict[3] = "Tumor";
+    ailmentsDict[4] = "Covid-19";
+    ailmentsDict[5] = "Heart-Disorder";
+    ailmentsDict[6] = "Other";*/
+
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    var key ;
+    var docName = "";
+    
+    see_records = 0;
+
+    $(window).load(function() {
+        connect();
+        $(".alert-danger").hide();
+        
+        key = web3.currentProvider.selectedAddress.toLocaleLowerCase();
+        //key = key.toLocaleLowerCase();
+
+        var a = 0;
+        var b = 0;
+        contractInstance.get_doctor.call(key, {gas: 1000000},function(error, result){
+            if(!error)
+            {
+                //a = result[0]; 
+                b = result[1];
+                docName = result[0];
+                $("#name").html(docName);
+                $("#age").html(b.c[0]);
+            }
+        });
+        var patientAddressList = 0;
+
+        contractInstance.get_accessed_patientlist_for_doctor(key, {gas: 1000000}, function(error, result){
+            if(!error)
+            {
+                patientAddressList = result;
+                
+
+                patientAddressList.forEach(function(patientAddress, index){
+
+                    contractInstance.get_patient.call(patientAddress, {gas: 1000000}, function(error, result){
+
+                        var table = document.getElementById("viewPatient");
+                        if(!error) 
+                        {
+                            [name_a,b] = result;
+                            console.log(name_a);
+
+                            var row = table.insertRow(index+1);
+                            var cell1 = row.insertCell(0);
+                            var cell2 = row.insertCell(1);
+                            var cell3 = row.insertCell(2);
+                            
+                            cell1.innerHTML = name_a;
+                            cell3.innerHTML = '<input class="btn btn-success" onclick="view_records(this)" id="viewRecordsButton" type="button" value="View records"></input>';
+                            cell2.className = "publicKeyPatient";
+                            cell2.innerHTML = patientAddress;
+                            
+                        }
+                    })
+                })
+            }
+        });
+
+    });
+        
+    function view_records(element)
+    {
+        var table = document.getElementById("viewPatient");
+        var index = element.parentNode.parentNode.rowIndex;
+        //index=index.rowIndex;
+        var patientAddress = table.rows[index].cells[1].innerHTML;
+
+        if (see_records%2 == 0)
+        {
+            var patientRecord = ""
+            
+            contractInstance.get_hash(patientAddress, {gas: 1000000}, function(error, result){
+                if(!error)
+                {
+
+                    $.get("http://localhost:8080/ipfs/"+result, function(data){
+                        patientRecord = data;
+
+                        content = `<div class="tab-content">
+                        <div id="view${patientAddress}">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <pre style="margin: 20px 0;" id="records${patientAddress}">${patientRecord}</pre>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <div class="row">
+                                                    <div class="col-sm-2"><label for="topic" class="control-label">Diagnosis:</label></div>
+                                                    <div class="col-sm-10">
+                                                        <textarea class="form-control" id="topic" style="width:inherit;" required>
+                                                            
+                                                        </textarea>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <label class="control-label" for="details">Details:</label>
+                                                    </div>
+                                                    <div class="col-sm-10">
+                                                        <textarea class="form-control" rows="5" id="details" placeholder="Enter details to be added" name = "Details" style="width: inherit" required autofocus></textarea>
+                                                        
+                                                    </div>
+                                                </div>    
+                                            </div>
+                                            <div>
+                                            </div>
+                                            <div class="form-group col-sm-2">
+                                                <button class="btn btn-primary" onclick = "submitDiagnosis(this,`+index+`)">Submit</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>     
+                            </div>
+                        </div>`
+            
+                        var row1 = table.insertRow(index+1);
+                        var cell1 = row1.insertCell(0);
+                        cell1.colSpan = 3;
+
+                        cell1.innerHTML=content;
+
+                    })
+                    
+                }
+            })          
+            
+            element.value = "Hide Records";
+            element.className = "btn btn-danger"
+
+            see_records +=1
+
+        } 
+        else 
+        {
+            row = table.rows[index + 1];
+
+            $(row).hide();
+            element.value = "View Records";
+            element.className = "btn btn-success"
+            see_records -= 1;
+            
+        }
+        
+    }
+
+
+    function submitDiagnosis(element,index)
+    {
+        var table = document.getElementById("viewPatient");
+        var patientAddress = table.rows[index].cells[1].innerHTML;
+      
+        console.log(patientAddress);
+        //var diagnosis = $("#ailmentsList"+patientAddress).val();
+        //diagnosis = parseInt(diagnosis);
+        //var diagnosed = ailmentsDict[diagnosis];
+        var com1=document.getElementById("topic").value;
+        console.log('herehrehre');
+        console.log(com1);
+        var comm=com1;
+        com1 = parseInt(com1);
+
+        //var com1 = document.getElementById("topic").value;
+        console.log("topic here com1");
+        console.log(com1);
+
+
+        var comments = document.getElementById("details").value;
+
+        var oldRecords = $("#records"+patientAddress).html();
+
+        var newRecords = `Doctor name : ${docName} Topic : ${comm} Details : ${comments}`
+
+        var updatedRecords = oldRecords+newRecords;
+        
+        //if (!isNaN(com1)){
+            console.log('reached here!');
+
+            var buffer = Buffer(updatedRecords);
+
+            ipfs.files.add(buffer, (error, result) => {
+                
+                if(!error)
+                {
+                    ipfshash = result[0].hash;
+                    contractInstance.daignosis_submit_action(patientAddress, com1, ipfshash, {gas: 1000000}, function(error, result){
+                        if(!error)
+                        {
+                            alert("submitted!");
+                            // delete content row
+                            table.deleteRow(index+1);
+
+                            // delete main row of corresponding content row
+                            table.deleteRow(index); 
+                        }
+                    })
+                }
+            });
+            
+        //}
+        // else{
+        //     alert("Select a diagnosis");
+        // }
+    }
+</script>
+
+</body>
+
+</html>

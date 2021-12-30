@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Share-Care</title>
+
+    
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+    .panel-heading{
+        margin-top: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-bottom: 20px;
+    }
+    body {
+        background-color: rgb(122, 236, 236);
+        box-shadow: inset;
+    }
+    
+    </style>
+    <!--
+        .navbar{
+        margin-top: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-bottom: 70px;
+    }
+    -->
+    <!--<script src="/js/web3.min.js"></script>-->
+</head>
+
+<body>
+           <!-- Navigation -->
+    <nav class="navbar navbar-inverse" role="navigation">
+        <div class="container-fluid" style= "margin-left:650px">
+            
+            <h1 style=" color: white; border-width: 20cm;">Share-Care</h1>
+            <!--<div class="navbar-header">
+                <h1 style=" color: white; border-width: 20cm;">Share-Care</h1>
+            </div>-->
+
+        </div>
+    </nav>
+        
+        <div class="container" style="background-color: antiquewhite;">
+            <div class="panel panel-default" style="background-color: antiquewhite;">
+
+
+                <!--Welcome text-->
+                <div class="panel-heading" style="background-color: white;">
+                    <h2 class="text-center" style="color: brown;">Welcome to registration</h2>
+                    <h3 class="text-center" style="color: rgb(104, 11, 11);">Enter your details</h3>
+                </div>
+
+
+
+                <div class="panel-body">
+
+                    <!--Error messages-->
+                    <div class="row">
+                        <div class="alert alert-warning col-sm-8 col-sm-offset-2" style="display: none;">
+                            <h3 style="background-color: brown; color:black">Public key is invalid. Enter it again.</h3>
+                        </div>
+                                    
+                        <div class="alert alert-info col-sm-8 col-sm-offset-2" style="display: none;">
+                            <h3 style="background-color: brown; color:black">User already exists!</h3>
+                        </div>
+                    </div>
+                    
+
+                    <!--registration area-->
+                    <form name="registerForm" class="form-horizontal" action="./doctor.html">
+                        
+                        
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="name"><h5 style="color:rgb(99, 36, 7);"><b>Name</b></h5></label>
+                            <div class="col-sm-8">
+                                <input class="form-control" name = "Name" id="name" type="text" placeholder="Name" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="bloodgroup"><h5 style="color:rgb(99, 21, 7);"><b>Blood Group</b></h5></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name = "Blood Group" id="bloodgroup" placeholder="Blood Group" required autofocus>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="age"><h5 style="color:rgb(99, 28, 7);"><b>Age</b></h5></label>
+                            <div class="col-sm-8">
+                                <input type="age" class="form-control" id="age" placeholder="Age" name = "Age" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="phonenumber"><h5 style="color:rgb(99, 21, 7);"><b>Phone Number</b></h5></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name = "Phone Number" id="phonenumber" placeholder="Phone Number" required autofocus>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group"> 
+                            <label class="control-label col-sm-2" for="designation"><h5 style="color:rgb(78, 26, 6);"><b>Select Role (Doctor/Patient)</b></h5></label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="designation" required>
+                                    <!--<option selected disabled>-- Please Select --</option>-->
+                                    <option value="0">I am a Patient</option>
+                                    <option value="1">I am a Doctor</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </form>
+
+
+                    <!--Registration action-->
+                    <div class="text-center">
+                        <button class="btn btn-primary btn-lg" onclick="addAgent()">Register</button>
+                    </div>
+
+
+                </div>
+            </div>
+            
+            <hr>
+                
+        </div>
+        
+
+
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/app.js"></script>
+<script src="/js/web3.min.js"></script>
+<script src="https://unpkg.com/ipfs-api/dist/index.min.js" crossorigin="anonymous"></script>
+
+<script>
+
+    function addAgent()
+    {
+        var ipfs = window.IpfsApi('localhost', '5001')
+
+        const Buffer = window.IpfsApi().Buffer;
+
+        pk = web3.currentProvider.selectedAddress; //publicKey
+
+        //converting public key to lower case
+        pk = pk.toLowerCase();
+
+        name = $("#name").val();
+        bloodgroup = $("#bloodgroup").val();
+        age = $("#age").val();
+        phonenumber = $("#phonenumber").val();
+        var alreadyNotExist = true;
+        var PatientList = 0;
+        var DoctorList = 0;
+        
+
+        designation = $("#designation").val();
+        designation = parseInt(designation);
+        
+        
+        //console.log("PK:"+publicKey);
+
+        //var validPublicKey = true;
+        //var validAgent = true;
+
+        
+        //var InsurerList = 0;
+
+        contractInstance.get_patient_list({gas: 1000000},function(error, result){
+            if(!error)
+                PatientList = result; 
+            else
+                console.error(error);
+            });
+
+        contractInstance.get_doctor_list({gas: 1000000},function(error, result){
+            if(!error)
+                DoctorList = result;
+            else
+                console.error(error);
+            });
+
+        /*contractInstance.get_insurer_list({gas: 1000000},function(error, result){
+            if(!error)
+                InsurerList = result;
+            else
+                console.error(error);
+            });*/
+
+        /*if (validPublicKey == false) {
+            $(".alert-warning").show();
+        }
+        else{*/
+            
+        for(j = 0; j < DoctorList.length; j++) 
+        {
+                if (pk == DoctorList[j])
+                {
+                    alreadyNotExist = false;
+                }
+        }
+
+        for(j = 0; j < PatientList.length; j++) 
+        {
+                if (pk == PatientList[j])
+                {
+                    alreadyNotExist = false;
+                }
+        }
+        /*for(j = 0; j < InsurerList.length; j++) {
+                if (publicKey == InsurerList[j] ){
+                    validAgent = false;
+            }
+        }*/
+        //console.log(alreadyExist);
+        if (alreadyNotExist == true) 
+        {
+            $(".alert-warning").hide()
+            $(".alert-info").hide();   
+            
+            var ipfshash = "";
+
+            if (designation == "0") 
+            {
+                var agentinfo = `Name: ${name} Public Key: ${pk}`; //reportTitle
+                var buffer = Buffer(agentinfo);
+                
+                ipfs.files.add(buffer, (error, result) => {
+                    /*if(error)
+                    {
+                        console.log(error);
+                    }*/
+                    if(!error)
+                    {
+                        //console.log("result:"+result);
+                        ipfshash = result[0].hash;
+                        //console.log("Ipfs hash:"+ipfshash);
+                        contractInstance.add_agent(name, age, designation, phonenumber, bloodgroup, ipfshash, {gas: 1000000}, (error1, res) => {
+                            if(!error1)
+                            {
+                                location.replace("./patient.html");
+                            }
+                            
+                        })
+                    }
+                })
+            }
+            else if(designation == "1")
+            {
+                contractInstance.add_agent(name, age, designation, phonenumber, bloodgroup, ipfshash, {gas: 1000000}, (error1, res) => {
+                if (!error1) 
+                {
+                    location.replace("./doctor.html");
+                    /*if (designation == "1") 
+                    {
+                        location.replace("./doctor.html");
+                    }*/
+                    
+                }
+
+                });
+            }              
+        }
+        /*else
+        {
+            $(".alert-info").show();
+        }*/
+
+        return false;
+    }
+</script>
+
+</body>
+
+</html>
